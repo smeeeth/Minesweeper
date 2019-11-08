@@ -17,6 +17,9 @@ public:
     ~MinesweeperPanel();
 
 signals:
+    void click(int x, int y);
+    void uncovered(int x, int y);
+    void bombClicked();
 
 public slots:
 
@@ -31,7 +34,6 @@ private:
     void floodFill(int x, int y);
     bool isBomb(int x, int y);
     int neighboringBombs(int x, int y);
-    void endGame(bool win);
 
 
 private slots:

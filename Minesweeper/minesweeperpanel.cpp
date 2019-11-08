@@ -38,6 +38,7 @@ MinesweeperPanel::MinesweeperPanel(int rows, int cols, int numBombs, QWidget *pa
         int x = static_cast<int>(QRandomGenerator::global()->generateDouble() * (rows-1));
         int y = static_cast<int>(QRandomGenerator::global()->generateDouble() * (cols-1));
         bombs[x][y] = true;
+        board[x][y]->setText("B");
     }
 
     this->setLayout(layout);
@@ -51,8 +52,10 @@ MinesweeperPanel::~MinesweeperPanel()
 }
 
 void MinesweeperPanel::buttonClicked(int row, int col){
+    emit click(row, col);
+
     if (bombs[row][col])
-        endGame(false);
+        emit bombClicked();
 
     floodFill(row, col);
 }
@@ -69,6 +72,7 @@ void MinesweeperPanel::floodFill(int x, int y){
         return;
 
     board[x][y]->setEnabled(false);
+    emit uncovered(x,y);
 
     int neighbors = neighboringBombs(x, y);
     if (neighbors != 0){
@@ -104,15 +108,4 @@ int MinesweeperPanel::neighboringBombs(int x, int y){
     }
 
     return bombNeighbors;
-}
-
-void MinesweeperPanel::endGame(bool win){
-
-    QMessageBox msg;
-    if (win)
-        msg.setText("Win");
-    else
-        msg.setText("Loss");
-    msg.exec();
-    QApplication::quit();
 }
