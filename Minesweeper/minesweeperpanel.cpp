@@ -14,22 +14,27 @@ MinesweeperPanel::MinesweeperPanel(int rows, int cols, int numBombs, QWidget *pa
     setStyleSheet("QPushButton{min-width: 30px; max-width: 30px; min-height: 30px; max-height: 30px;}");
     QGridLayout *layout = new QGridLayout;
 
-    board = new QPushButton**[cols]; // dynamic array (size rows) of pointers to buttons
-    bombs = new bool*[cols]; //dynamic array (size rows) of pointers to bools for bombs
+    //allocate dynamic arrays of size rows
+    board = new MinesweeperButton**[cols];
+    bombs = new bool*[cols];
+    flags = new bool*[cols];
 
     //set up board and initailize bombs
     for (int i = 0; i < rows; i++) {
         //allocate row
-        board[i] = new QPushButton*[cols];
+        board[i] = new MinesweeperButton*[cols];
         bombs[i] = new bool[cols];
+        flags[i] = new bool[cols];
         for (int j = 0; j < cols; j++){
-            //
-            board[i][j] = new QPushButton;
+            //create button
+            board[i][j] = new MinesweeperButton;
             board[i][j]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             connect(board[i][j], &QPushButton::clicked, this, [=](void){buttonClicked(i,j);});
+            connect(board[i][j], &MinesweeperButton::rightClicked, this, [=](void){buttonRightClicked(i,j);});
             layout->addWidget(board[i][j], i, j);
             //initialize all bomb spots to false
             bombs[i][j] = false;
+            flags[i][j] = false;
         }
         // each i-th pointer is now pointing to dynamic array (size rows) of actual int values
     }
@@ -38,7 +43,6 @@ MinesweeperPanel::MinesweeperPanel(int rows, int cols, int numBombs, QWidget *pa
         int x = static_cast<int>(QRandomGenerator::global()->generateDouble() * (rows-1));
         int y = static_cast<int>(QRandomGenerator::global()->generateDouble() * (cols-1));
         bombs[x][y] = true;
-        board[x][y]->setText("B");
     }
 
     this->setLayout(layout);
@@ -54,10 +58,26 @@ MinesweeperPanel::~MinesweeperPanel()
 void MinesweeperPanel::buttonClicked(int row, int col){
     emit click(row, col);
 
-    if (bombs[row][col])
+    if (bombs[row][col]){ //bomb clicked
+        board[row][col]->setText("B");
         emit bombClicked();
+    }
 
     floodFill(row, col);
+}
+
+void MinesweeperPanel::buttonRightClicked(int row, int col){
+
+    flags[row][col] = !flags[row][col]; //flip flag
+
+    emit flagged(row, col, flags[row][col]);
+
+    if (flags[row][col]){
+        board[row][col]->setText("F");
+    } else{
+        board[row][col]->setText("");
+    }
+
 }
 
 bool MinesweeperPanel::isWithinBounds(int x, int y){

@@ -18,10 +18,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    minesweeperbutton.cpp \
     minesweeperpanel.cpp
 
 HEADERS += \
     mainwindow.h \
+    minesweeperbutton.h \
     minesweeperpanel.h
 
 FORMS +=

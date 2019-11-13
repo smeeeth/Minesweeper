@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QWidget>
-#include <QPushButton>
+#include <minesweeperbutton.h>
 
 /**
  * @brief The MinesweeperPanel class
@@ -19,14 +19,16 @@ public:
 signals:
     void click(int x, int y);
     void uncovered(int x, int y);
+    void flagged(int x, int y, bool flagged);
     void bombClicked();
 
 public slots:
 
 private:
     int rows, cols;
-    QPushButton ***board;
+    MinesweeperButton ***board;
     bool **bombs;
+    bool **flags;
 
     QVector<QString> stylesheets = {"", "blue","darkGreen", "red", "darkBlue", "darkRed", "darkCyan", "black", "gray"};
 
@@ -38,6 +40,7 @@ private:
 
 private slots:
     void buttonClicked(int row, int col);
+    void buttonRightClicked(int row, int col);
 
 };
 
