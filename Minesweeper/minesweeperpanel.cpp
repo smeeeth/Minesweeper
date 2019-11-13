@@ -10,7 +10,8 @@ int MinesweeperPanel::boxDimensions = 30;
 MinesweeperPanel::MinesweeperPanel(int rows, int cols, int numBombs, QWidget *parent) :
     QWidget(parent),
     rows(rows),
-    cols(cols)
+    cols(cols),
+    numBombs(numBombs)
 {
 
     setStyleSheet("QPushButton{min-width:" + QString::number(boxDimensions) + "px; \
@@ -67,6 +68,12 @@ MinesweeperPanel::~MinesweeperPanel()
     }
 }
 
+/**
+ * @brief MinesweeperPanel::buttonClicked
+ * Checks for bomb, then starts flood fill from given coordinate
+ * @param row
+ * @param col
+ */
 void MinesweeperPanel::buttonClicked(int row, int col){
 
     if(revealed[row][col])
@@ -83,6 +90,12 @@ void MinesweeperPanel::buttonClicked(int row, int col){
     floodFill(row, col);
 }
 
+/**
+ * @brief MinesweeperPanel::buttonRightClicked
+ * Toggles flag on given coordinates
+ * @param row
+ * @param col
+ */
 void MinesweeperPanel::buttonRightClicked(int row, int col){
 
     if(revealed[row][col])
@@ -100,10 +113,23 @@ void MinesweeperPanel::buttonRightClicked(int row, int col){
 
 }
 
+/**
+ * @brief MinesweeperPanel::isWithinBounds
+ * @param x
+ * @param y
+ * @return square is within bounds of grid
+ */
 bool MinesweeperPanel::isWithinBounds(int x, int y){
     return x>=0 && x<rows && y>=0 && y<cols;
 }
 
+/**
+ * @brief MinesweeperPanel::floodFill
+ * Recursive method that reveals board starting from given coordinates,
+ * then checks all neighbors if square has no neighboring bombs.
+ * @param x
+ * @param y
+ */
 void MinesweeperPanel::floodFill(int x, int y){
 
      if (!isWithinBounds(x,y) //if out of bounds
@@ -131,11 +157,23 @@ void MinesweeperPanel::floodFill(int x, int y){
     }
 }
 
+/**
+ * @brief MinesweeperPanel::isBomb
+ * @param x
+ * @param y
+ * @return square contains bomb
+ */
 bool MinesweeperPanel::isBomb(int x, int y){
     return !isWithinBounds(x,y) //within bounds
             && bombs[x][y]; //is bomb
 }
 
+/**
+ * @brief MinesweeperPanel::neighboringBombs
+ * @param x
+ * @param y
+ * @return number of neighboring squares that are bombs
+ */
 int MinesweeperPanel::neighboringBombs(int x, int y){
     int bombNeighbors=0;
     for (int i=-1; i<=1; i++){
@@ -150,15 +188,18 @@ int MinesweeperPanel::neighboringBombs(int x, int y){
     return bombNeighbors;
 }
 
+/**
+ * @brief MinesweeperPanel::revealBoard
+ * Uncover all squares in the board
+ */
 void MinesweeperPanel::revealBoard(){
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++){
             if (!revealed[i][j]){
                 if (bombs[i][j])
-                    board[i][j]->setIcon(QIcon("://images/bomb.png"));
+                    board[i][j]->setIcon(QIcon("://images/bomb.png")); //reveal bomb
                 else
-
-                    board[i][j]->setIcon(QIcon("://images/" + QString::number(neighboringBombs(i, j)) + ".png"));
+                    board[i][j]->setIcon(QIcon("://images/" + QString::number(neighboringBombs(i, j)) + ".png")); //reveal # neighbors
             }
         }
     }

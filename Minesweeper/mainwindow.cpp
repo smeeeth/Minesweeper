@@ -33,6 +33,11 @@ MainWindow::~MainWindow()
 {
 }
 
+/**
+ * @brief MainWindow::endGame
+ * Reveal board and display win message
+ * @param win
+ */
 void MainWindow::endGame(bool win){
     panel->revealBoard();
     QMessageBox msg;
@@ -44,10 +49,22 @@ void MainWindow::endGame(bool win){
     close();
 }
 
+/**
+ * @brief MainWindow::click
+ * Update click counter on screen
+ * @param x
+ * @param y
+ */
 void MainWindow::click(int x, int y){
     clicksCountLbl->setText(QString::number(clicksCountLbl->text().toInt() + 1));
 }
 
+/**
+ * @brief MainWindow::uncovered
+ *
+ * @param x
+ * @param y
+ */
 void MainWindow::uncovered(int x, int y){
     qDebug() << "Uncovered (" + QString::number(x) + ","  + QString::number(y) + ")";
     uncoveredSquares--;

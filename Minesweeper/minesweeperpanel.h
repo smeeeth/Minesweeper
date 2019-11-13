@@ -7,7 +7,7 @@
 
 /**
  * @brief The MinesweeperPanel class
- * Panel with Minesweeper buttons and
+ * Panel with Minesweeper buttons
  */
 class MinesweeperPanel : public QWidget
 {
@@ -26,7 +26,7 @@ public slots:
     void revealBoard();
 
 private:
-    int rows, cols;
+    int rows, cols, numBombs;
     MinesweeperButton ***board;
     bool **bombs;
     bool **flags;

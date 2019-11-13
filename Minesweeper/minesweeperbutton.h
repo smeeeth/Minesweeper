@@ -4,6 +4,10 @@
 #include <QPushButton>
 #include <QObject>
 
+/**
+ * @brief The MinesweeperButton class
+ * Button class for filtering right clicks
+ */
 class MinesweeperButton : public QPushButton
 {
     Q_OBJECT
