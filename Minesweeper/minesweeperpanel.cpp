@@ -5,19 +5,27 @@
 #include <QMessageBox>
 #include <QApplication>
 
+int MinesweeperPanel::boxDimensions = 30;
+
 MinesweeperPanel::MinesweeperPanel(int rows, int cols, int numBombs, QWidget *parent) :
     QWidget(parent),
     rows(rows),
     cols(cols)
 {
 
-    setStyleSheet("QPushButton{min-width: 30px; max-width: 30px; min-height: 30px; max-height: 30px;}");
+    setStyleSheet("QPushButton{min-width:" + QString::number(boxDimensions) + "px; \
+                                max-width:" + QString::number(boxDimensions) + "px; \
+                                min-height:" + QString::number(boxDimensions) + "px; \
+                                max-height:" + QString::number(boxDimensions) + "px; \
+                                background-color:rgb(185,185,185);}");
     QGridLayout *layout = new QGridLayout;
+    layout->setSpacing(0);
 
     //allocate dynamic arrays of size rows
     board = new MinesweeperButton**[cols];
     bombs = new bool*[cols];
     flags = new bool*[cols];
+    revealed = new bool*[cols];
 
     //set up board and initailize bombs
     for (int i = 0; i < rows; i++) {
@@ -25,16 +33,20 @@ MinesweeperPanel::MinesweeperPanel(int rows, int cols, int numBombs, QWidget *pa
         board[i] = new MinesweeperButton*[cols];
         bombs[i] = new bool[cols];
         flags[i] = new bool[cols];
+        revealed[i] = new bool[cols];
         for (int j = 0; j < cols; j++){
             //create button
             board[i][j] = new MinesweeperButton;
             board[i][j]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+            board[i][j]->setIcon(QIcon("://images/facingDown.png"));
+            board[i][j]->setIconSize(QSize(boxDimensions, boxDimensions));
             connect(board[i][j], &QPushButton::clicked, this, [=](void){buttonClicked(i,j);});
             connect(board[i][j], &MinesweeperButton::rightClicked, this, [=](void){buttonRightClicked(i,j);});
             layout->addWidget(board[i][j], i, j);
             //initialize all bomb spots to false
             bombs[i][j] = false;
             flags[i][j] = false;
+            revealed[i][j] = false;
         }
         // each i-th pointer is now pointing to dynamic array (size rows) of actual int values
     }
@@ -56,10 +68,15 @@ MinesweeperPanel::~MinesweeperPanel()
 }
 
 void MinesweeperPanel::buttonClicked(int row, int col){
+
+    if(revealed[row][col])
+        return;
+
     emit click(row, col);
 
     if (bombs[row][col]){ //bomb clicked
-        board[row][col]->setText("B");
+        board[row][col]->setStyleSheet("background-color:red;");
+        board[row][col]->setIcon(QIcon("://images/bomb.png"));
         emit bombClicked();
     }
 
@@ -68,14 +85,17 @@ void MinesweeperPanel::buttonClicked(int row, int col){
 
 void MinesweeperPanel::buttonRightClicked(int row, int col){
 
+    if(revealed[row][col])
+        return;
+
     flags[row][col] = !flags[row][col]; //flip flag
 
     emit flagged(row, col, flags[row][col]);
 
     if (flags[row][col]){
-        board[row][col]->setText("F");
+        board[row][col]->setIcon(QIcon("://images/flagged.png"));
     } else{
-        board[row][col]->setText("");
+        board[row][col]->setIcon(QIcon("://images/facingDown.png"));
     }
 
 }
@@ -86,19 +106,19 @@ bool MinesweeperPanel::isWithinBounds(int x, int y){
 
 void MinesweeperPanel::floodFill(int x, int y){
 
-    if (!isWithinBounds(x,y) //if out of bounds
+     if (!isWithinBounds(x,y) //if out of bounds
             || bombs[x][y] //or found bomb
-            || !board[x][y]->isEnabled()) //or already visited this square
+            || revealed[x][y]) //or already visited this square
         return;
 
-    board[x][y]->setEnabled(false);
-    emit uncovered(x,y);
+    revealed[x][y] = true;
 
     int neighbors = neighboringBombs(x, y);
-    if (neighbors != 0){
-        board[x][y]->setText(QString::number(neighbors));
-        board[x][y]->setStyleSheet("color: " + stylesheets[neighbors]);
-    }else{
+    board[x][y]->setIcon(QIcon("://images/" + QString::number(neighbors) + ".png"));
+
+    emit uncovered(x,y);
+
+    if (neighbors == 0){
         //search neighbors
         floodFill(x-1, y); //left
         floodFill(x+1, y); //right
@@ -128,4 +148,18 @@ int MinesweeperPanel::neighboringBombs(int x, int y){
     }
 
     return bombNeighbors;
+}
+
+void MinesweeperPanel::revealBoard(){
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++){
+            if (!revealed[i][j]){
+                if (bombs[i][j])
+                    board[i][j]->setIcon(QIcon("://images/bomb.png"));
+                else
+
+                    board[i][j]->setIcon(QIcon("://images/" + QString::number(neighboringBombs(i, j)) + ".png"));
+            }
+        }
+    }
 }

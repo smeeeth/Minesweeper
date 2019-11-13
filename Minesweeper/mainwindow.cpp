@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
@@ -33,6 +34,7 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::endGame(bool win){
+    panel->revealBoard();
     QMessageBox msg;
     if (win)
         msg.setText("Win");
@@ -47,6 +49,7 @@ void MainWindow::click(int x, int y){
 }
 
 void MainWindow::uncovered(int x, int y){
+    qDebug() << "Uncovered (" + QString::number(x) + ","  + QString::number(y) + ")";
     uncoveredSquares--;
     if (uncoveredSquares <= 0)
         endGame(true);

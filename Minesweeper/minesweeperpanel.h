@@ -23,12 +23,14 @@ signals:
     void bombClicked();
 
 public slots:
+    void revealBoard();
 
 private:
     int rows, cols;
     MinesweeperButton ***board;
     bool **bombs;
     bool **flags;
+    bool **revealed;
 
     QVector<QString> stylesheets = {"", "blue","darkGreen", "red", "darkBlue", "darkRed", "darkCyan", "black", "gray"};
 
@@ -37,6 +39,7 @@ private:
     bool isBomb(int x, int y);
     int neighboringBombs(int x, int y);
 
+    static int boxDimensions;
 
 private slots:
     void buttonClicked(int row, int col);
