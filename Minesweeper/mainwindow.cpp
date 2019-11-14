@@ -1,12 +1,18 @@
 #include "mainwindow.h"
 #include <QVBoxLayout>
 #include <QMessageBox>
+#include <QMenuBar>
 #include <QDebug>
+#include <gamedialog.h>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      clicksCountLbl(new QLabel)
+      clicksCountLbl(new QLabel),
+      layout(new QGridLayout)
 {
+    QAction *gamesAction = menuBar()->addAction("Game");
+    connect(gamesAction, &QAction::triggered, this, &MainWindow::openGame);
+
     QWidget *centralWidget = new QWidget;
 
     int rows = 10;
@@ -18,8 +24,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(panel, &MinesweeperPanel::bombClicked, this, [=](void){endGame(false);});
     connect(panel, &MinesweeperPanel::click, this, &MainWindow::click);
     connect(panel, &MinesweeperPanel::uncovered, this, &MainWindow::uncovered);
-
-    QGridLayout *layout = new QGridLayout;
 
     layout->addWidget(clicksCountLbl, 0, 1);
     layout->addWidget(panel, 1, 0, 1, 2);
@@ -70,4 +74,20 @@ void MainWindow::uncovered(int x, int y){
     uncoveredSquares--;
     if (uncoveredSquares <= 0)
         endGame(true);
+}
+
+void MainWindow::openGame(){
+    GameDialog dialog;
+
+    dialog.exec();
+
+    layout->removeWidget(panel);
+
+    delete panel;
+
+    panel = new MinesweeperPanel(dialog.height(), dialog.width(), dialog.mines());
+
+    layout->addWidget(panel, 1, 0, 1, 2);
+
+    this->update();
 }

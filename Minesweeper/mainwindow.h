@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <minesweeperpanel.h>
 #include <QLabel>
+#include <QGridLayout>
 
 /**
  * @brief The MainWindow class
@@ -21,11 +22,13 @@ private:
     QLabel *clicksCountLbl;
     int uncoveredSquares;
     int numBombs;
+    QGridLayout *layout;
 
 private slots:
     void endGame(bool status);
     void click(int x, int y);
     void uncovered(int x, int y);
+    void openGame();
 
 };
 #endif // MAINWINDOW_H

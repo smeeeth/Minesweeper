@@ -63,9 +63,12 @@ MinesweeperPanel::MinesweeperPanel(int rows, int cols, int numBombs, QWidget *pa
 
 MinesweeperPanel::~MinesweeperPanel()
 {
-    for (int i = 0; i < rows; i++){
-
+    for (int i=0; i<rows; i++){
+        for (int j=0;j<cols; j++){
+            delete board[i][j];
+        }
     }
+    delete this->layout();
 }
 
 /**
