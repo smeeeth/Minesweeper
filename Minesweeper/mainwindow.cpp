@@ -15,12 +15,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     QWidget *centralWidget = new QWidget;
 
-    int rows = 10;
-    int cols = 10;
+    int rows = 12;
+    int cols = 12;
     numBombs = 8;
     uncoveredSquares = rows*cols - numBombs;
 
-    panel = new MinesweeperPanel(10, 10, 8, this);
+    panel = new MinesweeperPanel(rows, cols, numBombs, this);
     connect(panel, &MinesweeperPanel::bombClicked, this, [=](void){endGame(false);});
     connect(panel, &MinesweeperPanel::click, this, &MainWindow::click);
     connect(panel, &MinesweeperPanel::uncovered, this, &MainWindow::uncovered);
@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     centralWidget->setLayout(layout);
 
     this->setCentralWidget(centralWidget);
+
 }
 
 MainWindow::~MainWindow()
@@ -81,13 +82,25 @@ void MainWindow::openGame(){
 
     dialog.exec();
 
+    startGame(dialog.width(), dialog.height(), dialog.mines());
+}
+
+void MainWindow::startGame(int rows, int cols, int bombs){
+
     layout->removeWidget(panel);
 
     delete panel;
 
-    panel = new MinesweeperPanel(dialog.height(), dialog.width(), dialog.mines());
+    panel = new MinesweeperPanel(rows, cols, bombs);
+    connect(panel, &MinesweeperPanel::bombClicked, this, [=](void){endGame(false);});
+    connect(panel, &MinesweeperPanel::click, this, &MainWindow::click);
+    connect(panel, &MinesweeperPanel::uncovered, this, &MainWindow::uncovered);
 
     layout->addWidget(panel, 1, 0, 1, 2);
+
+    this->setFixedSize(34 * rows + 18, 34 * cols + 58);
+
+    clicksCountLbl->setText("0");
 
     this->update();
 }

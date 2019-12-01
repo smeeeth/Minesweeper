@@ -24,6 +24,8 @@ private:
     int numBombs;
     QGridLayout *layout;
 
+    void startGame(int rows, int cols, int bombs);
+
 private slots:
     void endGame(bool status);
     void click(int x, int y);
